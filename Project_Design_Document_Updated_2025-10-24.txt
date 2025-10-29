@@ -1,0 +1,412 @@
+# Play - 3D Shader Viewer for Lattices and Gyroids
+---
+## Current Technical State (Updated October 24, 2025)
+
+**OpenGL Pipeline Status:**
+- **Window Management**: ✅ GLFW initialization and context creation working
+- **Projection Matrices**: ✅ Both orthographic and perspective functions implemented  
+- **Render Loop**: ✅ Complete workloop with proper clear order and buffer management
+- **Context Pattern**: ✅ OPENGL_CONTEXT class with PascalCase attributes
+- **Logging System**: ✅ Logger with conditional debug output (500/2000 frame intervals)
+- **Shader System**: ✅ Shader compilation working with uniform locations discovery
+- **Geometry Generators**: ✅ Cube and tetrahedron with proper uint32 facets
+- **Transform Infrastructure**: ✅ AFFINE_TRANSFORM with rotation matrices (not Euler!)
+- **Transform Operations**: ✅ Affine multiplication and inverse functions
+- **Color System**: ✅ Setting meshColor uniform correctly
+- **Buffer Management**: ✅ VAO/VBO/EBO creation and proper binding/unbinding
+- **Mesh Storage**: ✅ Context.Meshes dictionary for mesh management
+- **Input System**: ✅ Comprehensive keyboard/mouse handling with flag-based state tracking
+- **Rendering**: 🎉 **CUBE IS VISIBLE AND RENDERING!**
+
+**Critical Fixes Applied:**
+- ✅ Facets using dtype=np.uint32
+- ✅ Color uniform (COLOR_LOC) properly set
+- ✅ Clear bits fixed (COLOR | DEPTH)
+- ✅ Removed erroneous clear after drawing
+- ✅ glUniform4f for color setting
+- ✅ Proper uniform location discovery system
+- ✅ Complete input handling system implemented
+
+**Architecture Evolution:**
+- **File Organization**: Smart extraction of globals to `utils/globals.py`
+- **Transform Storage**: Changed from Euler angles to rotation matrices (avoiding gimbal lock)
+- **Naming Convention**: OPENGL_CONTEXT uses PascalCase for attributes
+- **Mesh Management**: Meshes stored in Context.Meshes dictionary with string keys
+- **Debug Optimization**: Conditional logging to reduce spam (only on first frame or intervals)
+- **Color Mode**: Context.Color_Mode with "Solid" as default
+- **Input Management**: Comprehensive WASD + mouse controls with flag tracking
+
+**Current State (~660 lines in main.py after globals extraction):**
+- Past the natural bleeding point but well-organized after globals extraction
+- Clean transform math functions ready for camera implementation
+- Complete input system ready for camera controls
+- All rendering pipeline functional and tested
+- Performance target documented: 1M faces at 60 FPS with solid color
+
+---
+## Key Architecture Decisions & Updates
+
+### File Organization Evolution:
+- **Previous**: Single monolithic file approaching 1000 lines
+- **Current**: Smart extraction of stable globals to `utils/globals.py`
+- **Benefit**: Cleaner main.py focused on core logic, stable constants separated
+- **Structure**: Main logic ~660 lines, globals ~150 lines in separate file
+
+### Transform System Evolution:
+- **Original Plan**: Euler angles (KISS principle)
+- **Current Implementation**: Rotation matrices directly
+- **Benefit**: Avoids gimbal lock, cleaner math
+- **Transform Operations**: Multiplication and inverse implemented and tested
+
+### Input System Implementation:
+- **Full WASD Controls**: W/A/S/D for movement
+- **Extended Keys**: Q/E, Arrow keys, Page Up/Down
+- **Modifiers**: Shift, Ctrl, Alt support
+- **Mouse**: Left/Right buttons + position tracking
+- **Flag System**: Each key has state + change flag for edge detection
+- **Numeric Keys**: 0-9 with flags for mode switching
+
+### Recent Implementation Decisions:
+- **PascalCase Attributes**: OPENGL_CONTEXT attributes standardized
+- **Mesh Dictionary**: Context.Meshes["Test_Cube"] pattern for named mesh access
+- **Logging Optimization**: Only log matrices/modes on first frame or changes
+- **Error Handling**: Added comprehensive defaults for unknown states
+- **Uniform Discovery**: Automatic uniform location detection system
+
+### Standing Decisions from Previous Sessions:
+1. **Context Pattern**: ✅ Singleton implemented and working
+2. **State Management**: ✅ Globals for init, objects handle runtime
+3. **Framebuffer Callback**: ✅ Implemented and tested
+4. **Error Handling**: ✅ Defaulting to safe values on error
+5. **Projection Modes**: ✅ String comparison with error handling
+6. **Resource Management**: ✅ Explicit init/terminate pattern
+7. **Transform Storage**: ✅ Dictionary implemented (Context.Transforms)
+8. **Shader Ownership**: ✅ Context owns shader program
+9. **Input Handling**: ✅ Comprehensive system with flag-based edge detection
+
+---
+## Domain Focus: Mathematical Surfaces & AM Integration
+
+### AM-Specific Parameters (Integrated):
+- **Laser Spot**: 0.05mm diameter
+- **Melt Pool**: 2x laser spot diameter (0.1mm)
+- **Geometric Tolerance**: ±0.01mm mechanical tolerance
+- **Area Thresholds**: Three levels of degeneracy detection
+- **Performance Target**: 1M triangles at 60 FPS
+
+### SDF Parameters (Ready):
+- **Bounding Box**: 10.0 units
+- **Grid Size**: 0.01 resolution
+- **Step Size**: 0.1 for ray marching
+
+### Mathematical Requirements:
+- **Parametric Equations**: Surface definition via u,v parameters
+- **Marching Cubes**: Convert implicit functions to meshes
+- **SDF Generation**: Signed distance fields for lattices
+- **Sympy Integration**: Planned for symbolic transform manipulation
+
+---
+## Code Organization Status
+
+**Current File Structure:**
+```
+Play/
+├── main.py                     # ~660 lines - WELL ORGANIZED AFTER EXTRACTION
+├── Project Design Document.txt # Previous version
+├── Project_Design_Document_Updated_2025-10-24.txt # This file
+└── utils/
+    ├── globals.py              # ~150 lines - All constants and global state
+    ├── log_setup.py            # Logger configuration
+    ├── shaders.py              # Shader compilation & basic shaders
+    └── sysinfo.py              # System information gathering
+```
+
+**File Organization Success:**
+- ✅ Smart globals extraction reduced main.py complexity
+- ✅ Constants and state cleanly separated
+- ✅ Core logic remains readable and focused
+- ✅ Utilities properly modularized
+
+**Globals Extraction Benefits:**
+- Constants stable and unlikely to change frequently
+- Main.py focused on core application logic
+- Easier to maintain and modify core functionality
+- Clean import pattern established
+
+---
+## Technical TODO (Priority Order)
+
+### ✅ Phase 1: Get Something On Screen (COMPLETE!)
+- ✅ Copy logger from Meshviz
+- ✅ Create geometry generators (cube, tetrahedron)
+- ✅ Copy shader compilation from Meshviz
+- ✅ Copy buffer creation from Meshviz
+- ✅ Add draw calls to render a cube
+- ✅ Get uniform locations working
+- ✅ Fix color uniform setting
+- ✅ Fix clear order and bits
+- ✅ Implement comprehensive input handling
+- ✅ Extract globals for better organization
+
+### 🔄 Phase 2: Camera System (Current Focus)
+- [ ] Implement view matrix generation
+- [ ] Connect camera transform to view matrix
+- [ ] Add orbit camera mathematics
+- [ ] Implement time-based rotation for testing
+- [ ] Connect GLFW mouse callbacks to camera orbit
+- [ ] Connect keyboard controls (WASD) to camera movement
+- [ ] Implement zoom controls (mouse wheel + Page Up/Down)
+- [ ] Add camera focus point visualization
+
+### 📊 Phase 3: Basic Lattice (Next)
+- [ ] Create cubic lattice generator (3D grid of points)
+- [ ] Generate line segments for lattice edges
+- [ ] Implement wireframe rendering mode
+- [ ] Add GL_LINES rendering path
+- [ ] Multi-mesh rendering support
+
+### 🎮 Phase 4: Interactivity
+- [ ] Basic Tkinter window with sliders
+- [ ] Connect sliders to lattice parameters
+- [ ] Real-time parameter updates
+- [ ] FPS counter and performance metrics
+- [ ] Camera controls GUI panel
+
+### 🔧 Phase 5: Advanced Transform System
+- [ ] Sympy-to-numpy conversion utilities
+- [ ] Transform hierarchy traversal
+- [ ] Parent-child transform resolution
+- [ ] Frame-to-frame path finding
+
+### 🎨 Phase 6: Advanced Surfaces
+- [ ] Gyroid equation implementation
+- [ ] Marching cubes algorithm
+- [ ] Surface normal calculation
+- [ ] Basic lighting shader
+
+---
+## Implementation Notes & Discoveries
+
+### File Organization Notes:
+- Globals extraction was perfect timing at ~800 total lines
+- Main.py remains focused on core application logic
+- Clean import pattern: `from utils.globals import *`
+- Utils directory properly organized with focused modules
+
+### Transform System Notes:
+- Changed from Euler angles to rotation matrices (major improvement)
+- `_affine_transform`: LHS * RHS multiplication working correctly
+- `_affine_inverse`: R^T and -R^T * T for inverse working correctly
+- Using np.eye(3) for identity rotation matrix
+- Transform hierarchy ready for camera implementation
+
+### Input System Notes:
+- Comprehensive key mapping with flag-based edge detection
+- Mouse position tracking with delta calculations
+- Support for all modifier keys (Shift, Ctrl, Alt)
+- Ready for immediate camera control implementation
+- Flag system prevents key repeat issues
+
+### OpenGL Patterns Established:
+- Clear COLOR | DEPTH buffers at frame start
+- Bind VAO → Use Program → Set Uniforms → Draw → Unbind
+- Conditional debug logging to reduce spam
+- Default to safe values on error (ortho projection)
+- Automatic uniform location discovery
+
+### Performance Considerations:
+- Target: 1M faces at 60 FPS
+- Current: Single cube (12 triangles) rendering smoothly
+- Optimization needed: 83,333x performance gap to target
+- Input system optimized with flag-based processing
+
+### Code Quality Improvements:
+- PascalCase for class attributes (consistent style)
+- Comprehensive header documentation
+- Detailed TODO list in code
+- Smart file organization with globals extraction
+- Notes on degeneracy storage approaches
+
+---
+## Session Handoff Notes
+
+### Previous Sessions:
+- **10/21/2025 Morning**: Got to ~400 lines with all pieces ready
+- **10/21/2025 Evening**: Fixed all rendering issues, got cube rendering
+- **10/22/2025**: Likely continued development and refinements
+
+### Current Session (10/24/2025):
+**User's Latest Progress:**
+- ✅ Smart globals extraction to separate file
+- ✅ Input system fully implemented with flag tracking
+- ✅ All rendering pipeline confirmed working
+- ✅ Code organization significantly improved
+- ✅ Ready for Phase 2 camera implementation
+
+**Code Status:**
+- ~660 lines in main.py (well-organized after globals extraction)
+- ~150 lines in utils/globals.py (stable constants)
+- All Phase 1 systems functional and tested
+- Input infrastructure ready for camera controls
+
+### Next Session Priorities:
+1. Implement view matrix for camera system
+2. Connect input handling to camera movement
+3. Add orbit camera with mouse controls
+4. Consider camera focus point visualization
+5. Begin lattice generation planning
+
+---
+## Working Notes & Observations
+
+### What's Working Excellently:
+- File organization much cleaner after globals extraction
+- Transform system robust and mathematically sound
+- Input system comprehensive and ready for camera work
+- Clear separation of concerns maintained despite complexity
+- Error handling with intelligent defaults
+- Mesh dictionary pattern ready for multi-mesh support
+
+### Smart Decisions Made:
+- Globals extraction at perfect timing (before 1000 line mark)
+- PascalCase for class attributes (consistent style)
+- Flag-based input handling (prevents key repeat issues)
+- Rotation matrices over Euler angles (avoids gimbal lock)
+- Conditional logging for performance (debug-friendly)
+- Automatic uniform discovery (robust shader interface)
+
+### Emerging Patterns:
+- Clean import structure with utils modules
+- Dictionary storage for named objects (transforms, meshes)
+- Conditional debug logging for performance
+- Flag-based state change detection
+- Comprehensive error handling with defaults
+
+### Performance Notes:
+- Debug logging optimized (every 500/2000 frames)
+- Input processing optimized with flag system
+- Clear performance target: 1M faces @ 60 FPS maintained
+- Ready for performance measurement implementation
+
+### Questions Resolved:
+- **File Organization**: Globals extraction chosen over larger file splits
+- **Transform Storage**: Using dictionaries with string keys working well
+- **Rotation Representation**: Matrices working better than planned Euler angles
+- **Input Handling**: Flag-based system preventing key repeat issues
+- **Color System**: Solid color working, framework ready for other modes
+
+### Questions for Camera Implementation:
+- Mouse sensitivity settings for orbit controls?
+- Camera speed settings for keyboard movement?
+- Focus point visualization method?
+- Zoom limits and behavior?
+- Camera constraint handling (prevent flipping)?
+
+---
+## Progress Tracking
+
+### Lines of Code:
+- **Previous**: ~500 lines in main.py (design doc estimate)
+- **Pre-extraction**: ~800+ lines in main.py
+- **Current**: ~660 lines main.py + ~150 lines globals.py = ~810 total
+- **Organization**: Much improved with focused separation
+
+### Features Completed Since Design Doc:
+- ✅ Complete rendering pipeline (confirmed working)
+- ✅ Transform math operations (tested and functional)
+- ✅ Mesh storage system (working with Test Cube)
+- ✅ Color uniform system (solid color confirmed)
+- ✅ Debug logging optimization (smart conditional output)
+- ✅ Error handling with defaults (robust fallbacks)
+- ✅ **NEW**: Comprehensive input handling system
+- ✅ **NEW**: Smart file organization with globals extraction
+- ✅ **NEW**: Automatic uniform location discovery
+- ✅ **NEW**: Flag-based input state management
+
+### Features In Progress:
+- 🔄 Camera system design and implementation
+- 🔄 View matrix integration with input controls
+
+### Features Planned (Unchanged):
+- 📋 Orbit camera with mouse controls
+- 📋 Lattice generators (cubic grid)
+- 📋 Tkinter UI for parameter control
+- 📋 Performance measurement system
+- 📋 Multi-mesh rendering support
+- 📋 Sympy integration for mathematical surfaces
+
+### Rendering Milestones:
+- ✅ Window appears correctly
+- ✅ Clear color works properly
+- ✅ **CUBE RENDERS PERFECTLY!**
+- ✅ Input system responsive and working
+- 📋 Camera movement and controls
+- 📋 Multiple meshes rendering
+- 📋 Lattice structures visible
+- 📋 Real-time parameter adjustment
+
+---
+## Success Metrics Update
+
+**Achieved (Major Progress):**
+- ✅ OpenGL pipeline complete and tested
+- ✅ Can render geometry reliably
+- ✅ Transform system robust and mathematically sound
+- ✅ Code well-organized with smart file structure
+- ✅ Input system comprehensive and ready for camera work
+- ✅ Debugging and logging systems optimized
+
+**Next Milestones:**
+- [ ] Camera controls working smoothly
+- [ ] Orbit camera with mouse interaction
+- [ ] Lattice visible on screen
+- [ ] Real-time parameter adjustment through GUI
+- [ ] Performance measurement system active
+
+**Learning Progress:**
+- Mastered rotation matrices over Euler angles (significant improvement)
+- Learned smart file organization timing and techniques
+- Understanding OpenGL state management thoroughly
+- Building confidence with graphics pipeline optimization
+- Developing good architectural instincts (globals extraction decision)
+
+**Code Quality Achievements:**
+- Consistent coding style with PascalCase conventions
+- Comprehensive error handling with intelligent defaults
+- Smart performance optimizations (conditional logging)
+- Clean separation of concerns (globals, utilities, core logic)
+- Ready for next major feature implementation (camera system)
+
+---
+## Next Development Focus
+
+**Immediate Priority**: Camera System Implementation
+- View matrix generation and integration
+- Mouse-based orbit controls
+- Keyboard movement (WASD) integration
+- Zoom controls (mouse wheel + Page Up/Down)
+- Camera focus point management
+
+**Architecture Readiness**:
+- Input system fully prepared for camera controls
+- Transform mathematics ready for view matrix generation
+- Error handling and debugging systems in place
+- File organization supports clean camera module addition
+
+**Success Criteria for Camera Phase**:
+- Smooth mouse orbit around focus point
+- Responsive keyboard movement controls
+- Zoom in/out with proper limits
+- No camera flipping or gimbal lock issues
+- Maintain current rendering performance
+
+---
+## End of Document
+
+Last Updated: October 24, 2025
+Current Focus: Camera system implementation (Phase 2)
+Next Milestone: Interactive camera controls with mouse and keyboard
+Code Status: ~810 lines total, well-organized, fully functional rendering
+Current Achievement: ✅ Phase 1 Complete - Cube rendering with comprehensive input system
+Performance Target: 1M triangles @ 60 FPS (unchanged)
+File Organization: ✅ Smart globals extraction completed

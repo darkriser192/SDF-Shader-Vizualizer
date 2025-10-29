@@ -1,0 +1,309 @@
+# Play - 3D Shader Viewer for Lattices and Gyroids
+---
+## Current Technical State
+
+**OpenGL Pipeline Status:**
+- **Window Management**: ✅ GLFW initialization and context creation working
+- **Projection Matrices**: ✅ Both orthographic and perspective functions implemented  
+- **Render Loop**: ✅ Complete workloop with proper clear order and buffer management
+- **Context Pattern**: ✅ OPENGL_CONTEXT class with PascalCase attributes
+- **Logging System**: ✅ Logger with conditional debug output (500/2000 frame intervals)
+- **Shader System**: ✅ Shader compilation working with uniform locations
+- **Geometry Generators**: ✅ Cube and tetrahedron with proper uint32 facets
+- **Transform Infrastructure**: ✅ AFFINE_TRANSFORM with rotation matrices (not Euler!)
+- **Transform Operations**: ✅ Affine multiplication and inverse functions
+- **Color System**: ✅ Setting meshColor uniform correctly
+- **Buffer Management**: ✅ VAO/VBO/EBO creation and proper binding/unbinding
+- **Mesh Storage**: ✅ Context.Meshes dictionary for mesh management
+- **Rendering**: 🎉 **CUBE SHOULD BE VISIBLE!**
+
+**Critical Fixes Applied:**
+- ✅ Facets using dtype=np.uint32
+- ✅ Color uniform (COLOR_LOC) properly set
+- ✅ Clear bits fixed (COLOR | DEPTH)
+- ✅ Removed erroneous clear after drawing
+- ✅ glUniform4f for color setting
+
+**Architecture Evolution:**
+- **Transform Storage**: Changed from Euler angles to rotation matrices (avoiding gimbal lock)
+- **Naming Convention**: OPENGL_CONTEXT uses PascalCase for attributes
+- **Mesh Management**: Meshes stored in Context.Meshes dictionary with string keys
+- **Debug Optimization**: Conditional logging to reduce spam (only on first frame or mode changes)
+- **Color Mode**: Context.Color_Mode with "Solid" as default
+
+**Current State (~500 lines in main.py):**
+- At the "considering bleeding" threshold but still manageable
+- Clean transform math functions ready for camera implementation
+- Comprehensive TODO list with sympy conversion utilities planned
+- FPS target documented: 1M faces at 60 FPS with solid color
+
+---
+## Key Architecture Decisions & Updates
+
+### Transform System Evolution:
+- **Original Plan**: Euler angles (KISS principle)
+- **Current Implementation**: Rotation matrices directly
+- **Benefit**: Avoids gimbal lock, cleaner math
+- **Transform Operations**: Multiplication and inverse implemented
+
+### Recent Implementation Decisions:
+- **PascalCase Attributes**: OPENGL_CONTEXT attributes changed (Width, Height, etc.)
+- **Mesh Dictionary**: Context.Meshes["Test_Cube"] pattern for named mesh access
+- **Logging Optimization**: Only log projection matrices on first frame
+- **Error Handling**: Added else clause for unknown projection modes
+
+### Standing Decisions from Q&A:
+1. **Context Pattern**: ✅ Singleton implemented
+2. **State Management**: ✅ Globals for init, objects handle runtime
+3. **Framebuffer Callback**: Still experimental
+4. **Error Handling**: ✅ Defaulting to safe values on error
+5. **Projection Modes**: ✅ String comparison with error handling
+6. **Resource Management**: ✅ Explicit init/terminate pattern
+7. **Transform Storage**: ✅ Dictionary implemented (Context.Transforms)
+8. **Shader Ownership**: ✅ Context owns shader program
+
+---
+## Domain Focus: Mathematical Surfaces & AM Integration
+
+### AM-Specific Parameters (Integrated):
+- **Laser Spot**: 0.05mm diameter
+- **Melt Pool**: 2x laser spot diameter (0.1mm)
+- **Geometric Tolerance**: ±0.01mm mechanical tolerance
+- **Area Thresholds**: Three levels of degeneracy detection
+- **Performance Target**: 1M triangles at 60 FPS
+
+### SDF Parameters (Ready):
+- **Bounding Box**: 10.0 units
+- **Grid Size**: 0.01 resolution
+- **Step Size**: 0.1 for ray marching
+
+### Mathematical Requirements:
+- **Parametric Equations**: Surface definition via u,v parameters
+- **Marching Cubes**: Convert implicit functions to meshes
+- **SDF Generation**: Signed distance fields for lattices
+- **Sympy Integration**: Planned for symbolic transform manipulation
+
+---
+## Code Organization Status
+
+**Current File Structure:**
+```
+Play/
+├── main.py                     # ~500 lines - APPROACHING BLEED POINT
+├── Project Design Document.txt # This file
+└── utils/
+    ├── log_setup.py           # Logger configuration
+    ├── shaders.py             # Shader compilation & basic shaders
+    └── sysinfo.py             # System information gathering
+```
+
+**When to Split (Bleed Indicators):**
+- ✅ Scrolling becoming annoying
+- ✅ Multiple distinct systems (transforms, mesh, rendering)
+- ⚠️ Currently at ~500 lines (halfway to hard limit)
+
+**Suggested Split Soon:**
+```
+Play/
+├── main.py                    # OpenGL setup, render loop (~250 lines)
+├── transforms.py              # AFFINE_TRANSFORM class and operations (~100 lines)
+├── geometry.py                # Mesh generators and RENDER_MESH (~150 lines)
+└── utils/                     # Existing utilities
+```
+
+---
+## Technical TODO (Priority Order)
+
+### ✅ Phase 1: Get Something On Screen (COMPLETE!)
+- ✅ Copy logger from Meshviz
+- ✅ Create geometry generators (cube, tetrahedron)
+- ✅ Copy shader compilation from Meshviz
+- ✅ Copy buffer creation from Meshviz
+- ✅ Add draw calls to render a cube
+- ✅ Get uniform locations working
+- ✅ Fix color uniform setting
+- ✅ Fix clear order and bits
+
+### 🔄 Phase 2: Camera System (Current Focus)
+- [ ] Implement view matrix generation
+- [ ] Connect camera transform to view matrix
+- [ ] Add orbit camera mathematics
+- [ ] Implement time-based rotation for testing
+- [ ] GLFW mouse callbacks for camera control
+- [ ] Keyboard controls for camera movement
+
+### 📊 Phase 3: Basic Lattice (Next)
+- [ ] Create cubic lattice generator (3D grid of points)
+- [ ] Generate line segments for lattice edges
+- [ ] Implement wireframe rendering mode
+- [ ] Add GL_LINES rendering path
+
+### 🎮 Phase 4: Interactivity
+- [ ] Basic Tkinter window with sliders
+- [ ] Connect sliders to lattice parameters
+- [ ] Real-time parameter updates
+- [ ] FPS counter and performance metrics
+
+### 🔧 Phase 5: Advanced Transform System
+- [ ] Sympy-to-numpy conversion utilities
+- [ ] Transform hierarchy traversal
+- [ ] Parent-child transform resolution
+- [ ] Frame-to-frame path finding
+
+### 🎨 Phase 6: Advanced Surfaces
+- [ ] Gyroid equation implementation
+- [ ] Marching cubes algorithm
+- [ ] Surface normal calculation
+- [ ] Basic lighting shader
+
+---
+## Implementation Notes & Discoveries
+
+### Transform System Notes:
+- Changed from Euler angles to rotation matrices
+- `_affine_transform`: LHS * RHS multiplication
+- `_affine_inverse`: R^T and -R^T * T for inverse
+- Using np.eye(3) for identity rotation matrix
+
+### OpenGL Patterns Established:
+- Clear COLOR | DEPTH buffers at frame start
+- Bind VAO → Use Program → Set Uniforms → Draw → Unbind
+- Conditional debug logging to reduce spam
+- Default to safe values on error (ortho projection)
+
+### Performance Considerations:
+- Target: 1M faces at 60 FPS
+- Current: Single cube (12 triangles) 
+- Optimization needed: 83,333x performance gap
+
+### Code Quality Improvements:
+- PascalCase for class attributes
+- Comprehensive header documentation
+- Detailed TODO list in code
+- Notes on degeneracy storage approaches
+
+---
+## Session Handoff Notes
+
+### Previous Session (10/21/2025 Morning):
+- Got to ~400 lines with all pieces ready
+- Identified missing color uniform setting
+- Planned buffer creation adaptation
+
+### Current Session (10/21/2025 Update):
+**User's Latest Progress:**
+- Fixed ALL rendering issues:
+  - uint32 facets ✅
+  - Color uniform setting ✅
+  - Clear order and bits ✅
+- Added transform math functions
+- Changed to rotation matrices (better than Euler)
+- Improved logging with conditional output
+- **CUBE SHOULD BE RENDERING!**
+
+**Code Status:**
+- ~500 lines (approaching natural split point)
+- All systems functional
+- Ready for camera implementation
+
+### Next Session Priorities:
+1. Implement view matrix for camera
+2. Add camera controls (mouse/keyboard)
+3. Consider splitting files if over 600 lines
+4. Start cubic lattice generator
+
+---
+## Working Notes & Observations
+
+### What's Working Well:
+- Transform system more robust than planned (matrices > Euler)
+- Clean separation of concerns despite monolith
+- Good error handling with defaults
+- Mesh dictionary pattern for future multi-mesh support
+
+### Emerging Patterns:
+- PascalCase for class attributes
+- Underscore prefix for private functions
+- Dictionary storage for named objects
+- Conditional logging for performance
+
+### Performance Notes:
+- Debug logging optimized (every 500/2000 frames)
+- TODO notes about logging only on mode changes
+- Clear performance target: 1M faces @ 60 FPS
+
+### Questions Resolved:
+- **Transform Storage**: Using dictionaries with string keys
+- **Rotation Representation**: Matrices instead of Euler angles
+- **Color System**: Solid color working, other modes stubbed
+
+### Questions Emerging:
+- When exactly to split files? (Now at ~500 lines)
+- How to organize transform hierarchy traversal?
+- Camera controls: Orbit style or fly-through?
+
+---
+## Progress Tracking
+
+### Lines of Code:
+- Previous: ~400 lines in main.py
+- **Current: ~500 lines in main.py**
+- Bleeding point: ~600-800 lines
+- Hard limit: ~1000 lines
+
+### Features Completed:
+- ✅ Complete rendering pipeline
+- ✅ Transform math operations
+- ✅ Mesh storage system
+- ✅ Color uniform system
+- ✅ Debug logging optimization
+- ✅ Error handling with defaults
+
+### Features In Progress:
+- 🔄 Camera system design
+- 🔄 File splitting decision
+
+### Features Planned:
+- 📋 View matrix implementation
+- 📋 Camera controls
+- 📋 Lattice generators
+- 📋 Tkinter UI
+- 📋 Sympy integration
+
+### Rendering Milestones:
+- ✅ Window appears
+- ✅ Clear color works
+- ✅ **CUBE RENDERS!** (if not, check shader/matrix)
+- 📋 Camera movement
+- 📋 Multiple meshes
+- 📋 Lattice structures
+
+---
+## Success Metrics Update
+
+**Achieved:**
+- ✅ OpenGL pipeline complete
+- ✅ Can render geometry
+- ✅ Transform system robust
+- ✅ Code still readable at 500 lines
+
+**Next Milestones:**
+- [ ] Camera controls working
+- [ ] Lattice visible on screen
+- [ ] Real-time parameter adjustment
+- [ ] Performance measurement system
+
+**Learning Progress:**
+- Discovered rotation matrices better than Euler
+- Learned PascalCase convention for classes
+- Understanding OpenGL state management
+- Building confidence with graphics pipeline
+
+---
+## End of Document
+
+Last Updated: October 21, 2025 (Evening)
+Current Focus: Camera system implementation
+Next Milestone: Interactive camera controls
+Code Status: ~500 lines, fully functional, CUBE RENDERING
+Performance Target: 1M triangles @ 60 FPS

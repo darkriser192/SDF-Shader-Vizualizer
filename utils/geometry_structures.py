@@ -1,10 +1,12 @@
 ## Imports
 # Standard Python imports for handling basic requirements
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 import numpy.typing as npt
 import time
 from typing import Optional, Dict, Any, List, Callable
-from .globals import *  # For constants if needed
+from utils.globals import *  # For constants if needed
 
 __all__ = ['AFFINE_TRANSFORM',
            'MESH',
@@ -39,7 +41,7 @@ class AFFINE_TRANSFORM():
                  parent: str = DEFAULT_AFFINE_PARENT,
                  child: str = DEFAULT_AFINE_CHILD,
                  translation: Optional[npt.NDArray[np.float64]] = None,
-                 homogeneous: float = 1.0,
+                 homogeneous: np.float64 = np.float64(1.0),
                  rotation: Optional[npt.NDArray[np.float64]] = None,
                  scale: Optional[npt.NDArray[np.float64]] = None,
                  is_symbolic: bool = False,
@@ -68,7 +70,7 @@ class AFFINE_TRANSFORM():
         self.Translation: npt.NDArray[np.float64] = (
             IDENTITY_TRANSLATION.copy() if translation is None else np.asarray(translation, dtype=np.float64)
         )
-        self.Homogeneous: float = homogeneous
+        self.Homogeneous: np.float64 = np.float64(homogeneous)
         self.Rotation: npt.NDArray[np.float64] = (
             IDENTITY_ROTATION.copy() if rotation is None else np.asarray(rotation, dtype=np.float64)
         )

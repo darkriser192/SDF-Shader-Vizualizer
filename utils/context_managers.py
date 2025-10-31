@@ -1,10 +1,15 @@
 ## Imports
-import os
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import tkinter as tk
-from typing import Optional, Dict, Any, List
-from .globals import *  # For constants if needed
-from .geometry_structures import AFFINE_TRANSFORM, MESH
-from .globals import *
+import numpy.typing as npt
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
+from utils.globals import *  # For constants if needed
+from utils.geometry_structures import AFFINE_TRANSFORM, MESH
+
+if TYPE_CHECKING:
+    from .geometry_structures import AFFINE_TRANSFORM, MESH
+    from .context_managers import OPENGL_CONTEXT 
 
 __all__ = ['OPENGL_CONTEXT',
            'TKINTER_CONTEXT']
@@ -52,11 +57,11 @@ class OPENGL_CONTEXT():
                  fov: np.float64 = FOV,
                  near: np.float64 = NEAR,
                  far: np.float64 = FAR,
-                 projection_mode: str = ORTHOGRAPHIC_MODE,
+                 projection_mode: str = DEFAULT_PROJECTION_MODE,
                  shader_program: Optional[int] = None,
-                 transforms: Dict[str, AFFINE_TRANSFORM] = {},
-                 meshes: Dict[str, MESH] = {},
-                 azimut = 0.0,
+                 transforms:  Optional[Dict[str, "AFFINE_TRANSFORM"]] = None,
+                 meshes: Optional[Dict[str, "MESH"]] = None,
+                 azimut: np.float64 = np.float64(0.0),
                  camera_elevation = 0.0,
                  orbital_distance = 50.0,
                  notes: str = "") -> None:
@@ -76,18 +81,18 @@ class OPENGL_CONTEXT():
         self.Far: np.float64 = far
         self.Projection_Mode: str = projection_mode
         self.Shader_Program: Optional[int] = shader_program
-        self.Transforms: Dict[str, AFFINE_TRANSFORM] = transforms
-        self.Meshes: Dict[str, MESH] = meshes
-        self.Azimut = azimut # Y Axis rotation around the World frame of the focus point
-        self.Camera_Elevation = camera_elevation # X axis rotation around the World Frame of the focus point
-        self.Orbital_Distance = orbital_distance # Initial orbital distance of camera to focus point
+        self.Transforms:  Dict[str, "AFFINE_TRANSFORM"] = transforms or {}
+        self.Meshes: Dict[str, "MESH"] = meshes or {}
+        self.Azimut: np.float64 = np.float64(azimut) # Y Axis rotation around the World frame of the focus point
+        self.Camera_Elevation: np.float64 = np.float64(camera_elevation) # X axis rotation around the World Frame of the focus point
+        self.Orbital_Distance: np.float64 = np.float64(orbital_distance) # Initial orbital distance of camera to focus point
         self.Notes: str = notes
 
 class TKINTER_CONTEXT():
     """
     Tkinter Context Class
     
-    Manages Tkinter GUI state and windows associated with an OpenGL context.
+    Manages Tkinter GUI state and windows aSssociated with an OpenGL context.
     
     Attributes:
         Dirty_Flag (bool): Indicates if the context has unprocessed changes
@@ -98,7 +103,13 @@ class TKINTER_CONTEXT():
         Notes (str): Development notes and context
     """
     
-    def __init__(self, window_context: OPENGL_CONTEXT, name: str = "Tkinter_Context") -> None:
+    def __init__(self,
+                 window_context: Optional["OPENGL_CONTEXT"] = None,
+                 name: str = "Tkinter_Context",
+                 dirty_flag: bool = False,
+                 root: Optional[tk.Tk] = None,
+                 file_dialog_path: str = "",
+                 notes: str = "") -> None:
         """
         Initialize Tkinter context with associated OpenGL context.
         
@@ -106,12 +117,14 @@ class TKINTER_CONTEXT():
             window_context (OPENGL_CONTEXT): Associated OpenGL context
             name (str): Name identifier for this context
         """
-        self.Dirty_Flag: bool = False  # Must be first for state management
+        self.Dirty_Flag: bool = dirty_flag
         self.Name: str = name
-        self.Related_OpenGL_Context: str = window_context.Name
-        self.Root: tk.Tk = tk.Tk()
-        self.File_Dialog_Path: str = os.getcwd()
-        self.Notes: str = ""
+        self.Related_OpenGL_Context: Optional[str] = (
+            window_context.Name if window_context else None
+        )
+        self.Root: tk.Tk = root or tk.Tk()
+        self.File_Dialog_Path: str = file_dialog_path
+        self.Notes: str = notes
 
 ## Self-Test and Module Entry Point
 def _self_test() -> bool:
@@ -139,6 +152,7 @@ def _self_test() -> bool:
     except Exception as e:
         print(f"Context manager self-test failed: {e}")
         return False
+    
 
 def _main() -> int:
     """

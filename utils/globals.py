@@ -129,9 +129,10 @@ DEFAULT_AFINE_CHILD = "None" # Meaning it is a frame and not a transform
 DEFAULT_MESH_NAME = "Default_Mesh"
 DEFAULT_MESH_PARENT = "World_Frame"
 
-# Projection Mode Constants
+# Projection Mode ConstantsS
 ORTHOGRAPHIC_MODE = "Orthographic"
 PERSPECTIVE_MODE = "Perspective"
+DEFAULT_PROJECTION_MODE = ORTHOGRAPHIC_MODE
 
 # Render Mode Constants
 SOLID_COLOR_MODE = "Solid"

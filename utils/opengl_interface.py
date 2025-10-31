@@ -1,5 +1,7 @@
 ## Imports
 # Standard Python imports for handling basic requirements
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 import numpy.typing as npt
 from typing import Dict, Any, TYPE_CHECKING
@@ -9,10 +11,10 @@ import trimesh
 from OpenGL.GL import *  # pyright: ignore[reportWildcardImportFromLibrary]
 
 # Custom Imports
-from .globals import *  # For constants if needed
-from .geometry_structures import MESH
-from .context_managers import OPENGL_CONTEXT
-from .support_function import _generate_fault_cube_geometry
+from utils.globals import *  # For constants if needed
+from utils.geometry_structures import MESH
+from utils.context_managers import OPENGL_CONTEXT
+from utils.support_function import _generate_fault_cube_geometry
 
 if TYPE_CHECKING:
     from utils.context_managers import OPENGL_CONTEXT
@@ -140,7 +142,7 @@ def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT", name: str, where: str 
         
         # Get file path
         STL_address = filedialog.askopenfilename(
-            title="Select STL file",
+            title= "Select STL file",
             filetypes=[("STL files", "*.stl"), ("All files", "*.*")]
         )
         Trimesh_geometry = trimesh.load_mesh(STL_address, file_type='stl')

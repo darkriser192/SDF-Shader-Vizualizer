@@ -1,7 +1,7 @@
 ## Imports
 import glfw
-from utils.globals import *
-from utils.context_managers import OPENGL_CONTEXT, TKINTER_CONTEXT
+from .globals import *
+from .context_managers import OPENGL_CONTEXT, TKINTER_CONTEXT
 
 __all__ = ['_get_input_events',
            '_change_color_mode',

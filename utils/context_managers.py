@@ -2,9 +2,9 @@
 import os
 import tkinter as tk
 from typing import Optional, Dict, Any, List
-from utils.globals import *  # For constants if needed
-from utils.geometry_structures import AFFINE_TRANSFORM, MESH
-from utils.globals import *
+from .globals import *  # For constants if needed
+from .geometry_structures import AFFINE_TRANSFORM, MESH
+from .globals import *
 
 __all__ = ['OPENGL_CONTEXT',
            'TKINTER_CONTEXT']

@@ -1,8 +1,8 @@
 ## Imports
 import numpy as np
-from utils.globals import *  # For constants if needed
-from utils.geometry_structures import AFFINE_TRANSFORM
-from utils.context_managers import OPENGL_CONTEXT
+from .globals import *  # For constants if needed
+from .geometry_structures import AFFINE_TRANSFORM
+from .context_managers import OPENGL_CONTEXT
 
 __all__ =['_affine_transform',
           '_affine_inverse',

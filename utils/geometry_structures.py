@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import time
 from typing import Optional, Dict, Any, List, Callable
-from utils.globals import *  # For constants if needed
+from .globals import *  # For constants if needed
 
 __all__ = ['AFFINE_TRANSFORM',
            'MESH',

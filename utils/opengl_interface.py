@@ -2,16 +2,21 @@
 # Standard Python imports for handling basic requirements
 import numpy as np
 import numpy.typing as npt
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 import tkinter as tk
 from tkinter import filedialog
 import trimesh
 from OpenGL.GL import *  # pyright: ignore[reportWildcardImportFromLibrary]
-from utils.globals import *  # For constants if needed
-from utils.geometry_structures import MESH
-from utils.context_managers import OPENGL_CONTEXT
-from utils.support_function import _generate_fault_cube_geometry
-from utils.globals import *
+
+# Custom Imports
+from .globals import *  # For constants if needed
+from .geometry_structures import MESH
+from .context_managers import OPENGL_CONTEXT
+from .support_function import _generate_fault_cube_geometry
+
+if TYPE_CHECKING:
+    from utils.context_managers import OPENGL_CONTEXT
+    from utils.geometry_structures import MESH
 
 __all__ = ['_create_orthographic_matrix',
            '_create_perspective_matrix',
@@ -96,7 +101,7 @@ def _framebuffer_size_callback(window: Any, width: int, height: int) -> None:
     
 ## Mesh Management Functions
 
-def _load_meshes_to_context(gl_context: OPENGL_CONTEXT, name: str, where: str = "test" ) -> None:
+def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT", name: str, where: str = "test" ) -> None:
     """
     Load default meshes into the OpenGL context.
     
@@ -147,7 +152,7 @@ def _load_meshes_to_context(gl_context: OPENGL_CONTEXT, name: str, where: str = 
         
         root.destroy()
 
-def _create_mesh_buffers(mesh: MESH):
+def _create_mesh_buffers(mesh: MESH) -> None:
     """
     Create OpenGL buffers (VAO, VBO, EBO) for a given mesh.
     

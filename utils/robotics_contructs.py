@@ -4,9 +4,9 @@ from typing import Union
 import numpy.typing as npt
 
 # Custom Imports
-from utils.globals import *
-from utils.geometry_structures import *
-from utils.support_function import *
+from .globals import *
+from .geometry_structures import *
+from .support_function import *
 
 ## Import control
 __all__ =[]

@@ -117,7 +117,7 @@ if DEBUG:
                 LOGGER.info(f"{k}: {v}")
 
     # export_system_info(full_info = SYSINFO, filepath = "contexts", filename = "system_info.json")
-
+    
 if DEBUG: LOGGER.debug(f"This is a debug message from main.py")
 
 ## Data Structures
@@ -168,7 +168,7 @@ def _opengl_init() -> OPENGL_CONTEXT:
 
     return GL_Context
 
-def _workloop(GL_Context: OPENGL_CONTEXT):
+def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
     """
     Main rendering loop
     
@@ -181,7 +181,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT):
     
     # Create a meshes
     Name = "Test_Cube"
-    _load_meshes_to_context(GL_Context, name = Name, where = "test") 
+    _load_meshes_to_context(GL_Context, name = Name, size = 1.0 ,where = "test") 
 
     _create_mesh_buffers(GL_Context.Meshes[Name])
     
@@ -237,8 +237,13 @@ def _workloop(GL_Context: OPENGL_CONTEXT):
         GL_Context.Width, GL_Context.Height = glfw.get_window_size(GL_Context.Window)
         GL_Context.Aspect_Ratio = np.float64(GL_Context.Width) / np.float64(GL_Context.Height)
 
-        # Create projection matric
-        projection_matrix = _create_view_matrix(GL_Context)
+        # Create projection matrix
+        projection_matrix = _create_view_matrix(type_of_matrix = GL_Context.Projection_Mode,
+                                                aspect_ratio = GL_Context.Aspect_Ratio,
+                                                near =  GL_Context.Near,
+                                                far = GL_Context.Far,
+                                                fov = GL_Context.Fov,
+                                                orbital_distance = GL_Context.Orbital_Distance) 
         if DEBUG and WORKLOOP_COUNTER == 0 :LOGGER.debug(f"View Matrix:\n{GL_Context.Projection_Mode}") # TODO: Change logger to only print when the mode changes or is first set
         
         # Set mesh color uniform based on color mode
@@ -255,7 +260,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT):
                            projection_matrix.astype(np.float32, copy=False)) # Projection matrix data
 
         glDrawElements(GL_TRIANGLES,            # Type of geometry to draw based on the indices
-                       GL_Context.Meshes['Test_Cube'].Facets.size,   # Number of indices to draw
+                       GL_Context.Meshes['Test_Cube'].Num_Facets,   # Number of indices to draw
                        GL_UNSIGNED_INT, None)   # Type of indices and offset (None means start from the beginning)
 
         glfw.swap_buffers(GL_Context.Window) # Swap front and back buffers
@@ -278,7 +283,14 @@ def _workloop(GL_Context: OPENGL_CONTEXT):
 
     return 0
 
-def _opengl_terminate(GL_Context: OPENGL_CONTEXT):
+def _save_context(GL_Context: OPENGL_CONTEXT) -> int:
+    """
+    Saves the current statete of Tkinter and OpenGL in case if crash or closing
+    """
+    
+    return 0
+
+def _opengl_terminate(GL_Context: OPENGL_CONTEXT) -> int:
     """
     Terminates the OpenGL context and GLFW
     Args:
@@ -349,6 +361,9 @@ def _main() -> int:
     _workloop(Main_Context)
     # TKINTER_LOOP(Main_Tkinter_Context)
     # PROCESS_LOOP(Something_Goes_Here)
+
+    # save state
+    # _save_sate(Main_context)
 
     _opengl_terminate(Main_Context)
     if DEBUG: LOGGER.debug("This is the inner end of main()")

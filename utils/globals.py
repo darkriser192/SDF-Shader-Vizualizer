@@ -1,10 +1,10 @@
 ## Imports. Make sure to maintain with main.py imports to
 # Normal python imports. handles as mch as possible outside of specific requiremens
-#import os # For operating system dependent functionality
-#import sys # For system-specific parameters and functions
-#import sympy as symp # For symbolic mathematics operations like solving equations, simplification, etc.
+# import os # For operating system dependent functionality
+# import sys # For system-specific parameters and functions
+# import sympy as symp # For symbolic mathematics operations like solving equations, simplification, etc.
 import numpy as np # For numerical operations, C base code optimized, fast and efficient
-import scipy as scp # For scientific computing, advanced numerical methods and algorithms. prefered over numpy
+# import scipy as scp # For scientific computing, advanced numerical methods and algorithms. prefered over numpy
 import time # For time-related functions. Used for frame timing and delta time calculations has possible overlap with pygame time functions. Which is better?
 
 # Trimesh Imports. Handles 3D mesh loading and processing if we don't build our own, might build our own later
@@ -15,7 +15,7 @@ import OpenGL # For OpenGL bindings
 from OpenGL.GL import * # pyright: ignore[reportWildcardImportFromLibrary]
 from OpenGL.GLU import * # pyright: ignore[reportWildcardImportFromLibrary]
 from OpenGL.GLUT import * # pyright: ignore[reportWildcardImportFromLibrary]
-import glfw # For creating windows and contexts
+# import glfw # For creating windows and contexts
 
 # For game development. Will be used to handle keyboard and mouse input
 import pygame as pg # For input handling and other utilities we do not want to develop from scratch
@@ -104,6 +104,7 @@ KEYS = { # Dictionary to hold key states. There are the leys supported by the pr
     "MOUSE_RIGHT": False, "MOUSE_RIGHT_FLAG": False,
     "MOUSE_X": np.float64(0.0), "LAST_MOUSE_X": np.float64(0.0),
     "MOUSE_Y": np.float64(0.0), "LAST_MOUSE_Y": np.float64(0.0),
+    "MOUSE_X_DIR": np.float64(0.0), "MOUSE_Y_DIR": np.float64(0.0),
     "1": False, "2": False, "3": False, "4": False, "5": False, "6": False, "7": False, "8": False, "9": False, "0": False,
     "1_FLAG": False, "2_FLAG": False, "3_FLAG": False, "4_FLAG": False, "5_FLAG": False, "6_FLAG": False, "7_FLAG": False, "8_FLAG": False, "9_FLAG": False, "0_FLAG": False,
     "+": False, "-": False,

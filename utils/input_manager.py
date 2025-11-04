@@ -1,7 +1,9 @@
 ## Imports
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import glfw
-from .globals import *
-from .context_managers import OPENGL_CONTEXT, TKINTER_CONTEXT
+from utils.globals import *
+from utils.context_managers import OPENGL_CONTEXT, TKINTER_CONTEXT
 
 __all__ = ['_get_input_events',
            '_change_color_mode',
@@ -98,7 +100,9 @@ def _get_input_events(GL_Context: OPENGL_CONTEXT):
 
     GL_Context.Keys['LAST_MOUSE_X'] = GL_Context.Keys['MOUSE_X']
     GL_Context.Keys['LAST_MOUSE_Y'] = GL_Context.Keys['MOUSE_Y']
-    GL_Context.Keys['MOUSE_X'], GL_Context.Keys['MOUSE_Y']  = glfw.get_cursor_pos(GL_Context.Window)    
+    GL_Context.Keys['MOUSE_X'], GL_Context.Keys['MOUSE_Y']  = glfw.get_cursor_pos(GL_Context.Window)
+    GL_Context.Keys['MOUSE_X_DIR'] = GL_Context.Keys['MOUSE_X'] - GL_Context.Keys['LAST_MOUSE_X']
+    GL_Context.Keys['MOUSE_Y_DIR'] = GL_Context.Keys['MOUSE_Y'] - GL_Context.Keys['LAST_MOUSE_Y']
 
     prev = GL_Context.Keys['+'] 
     GL_Context.Keys['+'] = glfw.get_key(GL_Context.Window, glfw.KEY_KP_ADD) == glfw.PRESS
@@ -136,13 +140,20 @@ def _process_input_events(GL_Context: OPENGL_CONTEXT):
     # Camera movement
     # +/- as proxies for scroll wheel movement
     # Use your existing flag system for "just pressed" events
+
+    if GL_Context.Keys['MOUSE_RIGHT'] and GL_Context.Keys['SHIFT']:
+            print(f"Position in: {GL_Context.Keys['MOUSE_X']} , {GL_Context.Keys['MOUSE_Y']}")
+
+    if GL_Context.Keys['MOUSE_LEFT'] and GL_Context.Keys['CTRL']:
+        print(f"direction in: {GL_Context.Keys['MOUSE_X_DIR']} , {GL_Context.Keys['MOUSE_Y_DIR']}")
+
     if GL_Context.Keys['+_FLAG'] and GL_Context.Keys['+'] and GL_Context.Orbital_Distance < 100: 
         GL_Context.Orbital_Distance += CAMERA_STEP_SIZE
-        print(f"Zoom in: {GL_Context.Orbital_Distance}")
+        print(f"Zoom Out: {GL_Context.Orbital_Distance}")
 
     if GL_Context.Keys['-_FLAG'] and GL_Context.Keys['-'] and GL_Context.Orbital_Distance > 0.5: 
         GL_Context.Orbital_Distance -= CAMERA_STEP_SIZE
-        print(f"Zoom out: {GL_Context.Orbital_Distance}")
+        print(f"Zoom In: {GL_Context.Orbital_Distance}")
         
     return 0
 

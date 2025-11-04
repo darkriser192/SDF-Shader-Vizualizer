@@ -11,7 +11,7 @@ from .support_function import *
 ## Import control
 __all__ =[]
 
-## Local globals
+## Local global variables
 
 
 
@@ -23,52 +23,63 @@ __all__ =[]
 
 ## Support Functions
 
-def _rotX(angle: Union[float, npt.NDArray[np.float64]] = 0.0) -> AFFINE_TRANSFORM:
+def translateXYZ(x_coord: float = 0.0, 
+                 y_coord: float = 0.0, 
+                 z_coord: float = 0.0,
+                 Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM:
+    """
+    Returns an affine transform representing a finite trasnlation
+    """
+
+
+    return AFFINE_TRANSFORM()
+
+def _rotX(angle: Union[float, npt.NDArray[np.float64]] = 0.0, 
+          Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM:
     """
     Generated an affine TRANSFORM representing a rotation around X axis
     """
 
-    Result_Affine = AFFINE_TRANSFORM()
-    Result_Affine.Name = "An X Rotation"
-    Result_Affine.Parent = "None"
-    Result_Affine.Child = "None"
-    Result_Affine.Rotation = np.array([[ 1,             0,              0],
+    Temp_Trasnform.Name = "An X Rotation"
+    Temp_Trasnform.Parent = "None"
+    Temp_Trasnform.Child = "None"
+    Temp_Trasnform.Rotation = np.array([[ 1,             0,              0],
                                         [0, np.cos(angle), -np.sin(angle)],
                                         [0, np.sin(angle),  np.cos(angle)]], dtype=np.float64)
 
-    return Result_Affine
+    return Temp_Trasnform
 
-def _rotY(angle: Union[float, npt.NDArray[np.float64]] = 0.0) -> AFFINE_TRANSFORM: 
+def _rotY(angle: Union[float, npt.NDArray[np.float64]] = 0.0,
+          Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM: 
     """
     Generated an affine TRANSFORM representing a rotation around Y axis
     """
-
-    Result_Affine = AFFINE_TRANSFORM()
-    Result_Affine.Name = "A Y Rotation"
-    Result_Affine.Parent = "None"
-    Result_Affine.Child = "None"
-    Result_Affine.Rotation = np.array([[  np.cos(angle),         0, np.sin(angle)],
+    Temp_Trasnform.Name = "A Y Rotation"
+    Temp_Trasnform.Parent = "None"
+    Temp_Trasnform.Child = "None"
+    Temp_Trasnform.Rotation = np.array([[  np.cos(angle),         0, np.sin(angle)],
                                         [             0,         1,             0],
                                         [-np.sin(angle),         0, np.cos(angle)]], dtype=np.float64)
 
-    return Result_Affine
+    return Temp_Trasnform
 
-def _rotZ(angle: Union[float, npt.NDArray[np.float64]] = 0.0) -> AFFINE_TRANSFORM: 
+def _rotZ(angle: Union[float, npt.NDArray[np.float64]] = 0.0, 
+          Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM: 
     """
     Generated an affine TRANSFORM representing a rotation around Z axis
     """
 
-    Result_Affine = AFFINE_TRANSFORM()
-    Result_Affine.Name = "A Z Rotation"
-    Result_Affine.Parent = "None"
-    Result_Affine.Child = "None"
-    Result_Affine.Rotation = np.array([[ np.cos(angle), -np.sin(angle), 0],
+    Temp_Trasnform.Name = "A Z Rotation"
+    Temp_Trasnform.Parent = "None"
+    Temp_Trasnform.Child = "None"
+    Temp_Trasnform.Rotation = np.array([[ np.cos(angle), -np.sin(angle), 0],
                                         [np.sin(angle),  np.cos(angle), 0],
                                         [            0,              0, 1]], dtype=np.float64)
 
-    return Result_Affine
+    return Temp_Trasnform
 
-def _rotVect(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
+def _rotVect(w_vect = (0.0, 0.0, 1.0), angle = 0,
+             Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM:
     """
     Generate rotation around arbitrary vector using explicit Rodrigues formula
     
@@ -84,10 +95,9 @@ def _rotVect(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     AFFINE_TRANSFORM with rotation matrix using explicit Rodrigues components
     """
     
-    Result_Affine = AFFINE_TRANSFORM()
-    Result_Affine.Name = f"Vector Rotation ({angle:.3f} rad)"
-    Result_Affine.Parent = "None"
-    Result_Affine.Child = "None"
+    Temp_Trasnform.Name = f"Vector Rotation ({angle:.3f} rad)"
+    Temp_Trasnform.Parent = "None"
+    Temp_Trasnform.Child = "None"
     
     # Convert to numpy and normalize the axis vector
     w = np.array(w_vect, dtype=np.float64)
@@ -95,16 +105,16 @@ def _rotVect(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     
     # Handle zero vector case
     if w_norm < F64EPS:
-        Result_Affine.Rotation = np.eye(3)
-        return Result_Affine
+        Temp_Trasnform.Rotation = np.eye(3)
+        return Temp_Trasnform
     
     w = w / w_norm  # Normalize to unit vector
     w1, w2, w3 = w[0], w[1], w[2]
     
     # Handle zero angle case
     if abs(angle) < F64EPS:
-        Result_Affine.Rotation = np.eye(3)
-        return Result_Affine
+        Temp_Trasnform.Rotation = np.eye(3)
+        return Temp_Trasnform
     
     # Precompute trigonometric terms
     c_theta = np.cos(angle)
@@ -112,15 +122,16 @@ def _rotVect(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     one_minus_c = 1 - c_theta
     
     # Explicit Rodrigues formula components
-    Result_Affine.Rotation = np.array([
+    Temp_Trasnform.Rotation = np.array([
         [c_theta + w1*w1*one_minus_c,    w1*w2*one_minus_c - w3*s_theta,  w1*w3*one_minus_c + w2*s_theta],
         [w1*w2*one_minus_c + w3*s_theta, c_theta + w2*w2*one_minus_c,    w2*w3*one_minus_c - w1*s_theta], 
         [w1*w3*one_minus_c - w2*s_theta, w2*w3*one_minus_c + w1*s_theta, c_theta + w3*w3*one_minus_c   ]
     ], dtype=np.float64)
     
-    return Result_Affine
+    return Temp_Trasnform
 
-def _rodriguez_formula(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
+def _rodriguez_formula(w_vect = (0.0, 0.0, 1.0), angle = 0,
+                       Temp_Trasnform: AFFINE_TRANSFORM = AFFINE_TRANSFORM()) -> AFFINE_TRANSFORM:
     """
     Generate rotation around arbitrary vector using Rodrigues formula
     
@@ -136,10 +147,9 @@ def _rodriguez_formula(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     AFFINE_TRANSFORM with rotation matrix R = I + sin(θ)[w]× + (1-cos(θ))[w]×²
     """
     
-    Result_Affine = AFFINE_TRANSFORM()
-    Result_Affine.Name = f"Vector Rotation ({angle:.3f} rad)"
-    Result_Affine.Parent = "None"
-    Result_Affine.Child = "None"
+    Temp_Trasnform.Name = f"Vector Rotation ({angle:.3f} rad)"
+    Temp_Trasnform.Parent = "None"
+    Temp_Trasnform.Child = "None"
     
     # Convert to numpy and normalize the axis vector
     w = np.array(w_vect, dtype=np.float64)
@@ -147,15 +157,15 @@ def _rodriguez_formula(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     
     # Handle zero vector case
     if w_norm < 1e-10:
-        Result_Affine.Rotation = np.eye(3)
-        return Result_Affine
+        Temp_Trasnform.Rotation = np.eye(3)
+        return Temp_Trasnform
     
     w = w / w_norm  # Normalize to unit vector
     
     # Handle zero angle case
     if abs(angle) < 1e-10:
-        Result_Affine.Rotation = np.eye(3)
-        return Result_Affine
+        Temp_Trasnform.Rotation = np.eye(3)
+        return Temp_Trasnform
     
     # Rodrigues formula: R = I + sin(θ)[w]× + (1-cos(θ))[w]×²
     
@@ -172,9 +182,9 @@ def _rodriguez_formula(w_vect = (0.0, 0.0, 1.0), angle = 0) -> AFFINE_TRANSFORM:
     I = np.eye(3)
     w_skew_squared = w_skew @ w_skew
     
-    Result_Affine.Rotation = I + sin_angle * w_skew + (1 - cos_angle) * w_skew_squared
+    Temp_Trasnform.Rotation = I + sin_angle * w_skew + (1 - cos_angle) * w_skew_squared
     
-    return Result_Affine
+    return Temp_Trasnform
 
 def _affine_det(Affine_Transform: AFFINE_TRANSFORM) -> float:
     """
@@ -237,8 +247,8 @@ def check_transform_type(affine_transform: AFFINE_TRANSFORM) -> str:
     else:
         return f"Scaled transformation (det = {det_value})"
 
-## Self-Test and Module Entry Point
 
+## Self-Test and Module Entry Point
 
 def _self_test() -> bool:
     """
@@ -252,7 +262,6 @@ def _self_test() -> bool:
     """
 
     return False # Not implemented
-
 
 def _main() -> int:
     """

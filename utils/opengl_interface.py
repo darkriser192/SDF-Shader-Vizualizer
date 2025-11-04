@@ -30,7 +30,10 @@ __all__ = ['_create_orthographic_matrix',
 
 ## OpenGL Matrix Creation Functions
 
-def _create_orthographic_matrix(aspect_ratio: float = ASPECT_RATIO) -> npt.NDArray[np.float64]:
+def _create_orthographic_matrix(aspect_ratio = ASPECT_RATIO,
+                                bottom = 1.0,
+                                top = 1.0,
+                                orbital_distance = CAMERA_ORBIT_RADIUS)-> npt.NDArray[np.float64]:
     """
     Create an orthographic projection matrix.
     
@@ -42,10 +45,10 @@ def _create_orthographic_matrix(aspect_ratio: float = ASPECT_RATIO) -> npt.NDArr
     """
     left = -aspect_ratio
     right = aspect_ratio
-    bottom = -1.0
-    top = 1.0
-    near = -1.0
-    far = 1.0
+    bottom = -bottom
+    top = top
+    near = - orbital_distance/2
+    far = orbital_distance/2
 
     proj = np.array([
         [2/(right-left), 0, 0, -(right+left)/(right-left)],
@@ -84,7 +87,9 @@ def _create_perspective_matrix(fov: float = FOV,
 
 ## OpenGL Callback Functions
 
-def _framebuffer_size_callback(window: Any, width: int, height: int) -> None:
+def _framebuffer_size_callback(window: Any, 
+                               width: int, 
+                               height: int) -> None:
     """
     GLFW callback function for framebuffer resize events.
     
@@ -103,7 +108,9 @@ def _framebuffer_size_callback(window: Any, width: int, height: int) -> None:
     
 ## Mesh Management Functions
 
-def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT", name: str, where: str = "test" ) -> None:
+def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT", 
+                            name: str, size = 0.75, 
+                            where: str = "test" ) -> None:
     """
     Load default meshes into the OpenGL context.
     
@@ -212,7 +219,14 @@ def _create_mesh_buffers(mesh: MESH) -> None:
 
 ## View Matrix and Projection Functions
 
-def _create_view_matrix(gl_context: OPENGL_CONTEXT) -> npt.NDArray[np.float32]:
+def _create_view_matrix(type_of_matrix = DEFAULT_PROJECTION_MODE,
+                        aspect_ratio = ASPECT_RATIO,
+                        bottom = 1.0,
+                        top = 1.0,
+                        orbital_distance = CAMERA_ORBIT_RADIUS,
+                        fov = FOV,
+                        near = NEAR,
+                        far = FAR) -> npt.NDArray[np.float32]:
     """
     Create a projection matrix based on the context's current projection mode.
     
@@ -231,18 +245,20 @@ def _create_view_matrix(gl_context: OPENGL_CONTEXT) -> npt.NDArray[np.float32]:
         - Perspective mode uses FOV, aspect ratio, near, and far planes
         - Unknown modes default to orthographic projection
     """
-    if gl_context.Projection_Mode == ORTHOGRAPHIC_MODE:
-        projection_matrix = _create_orthographic_matrix(aspect_ratio=gl_context.Aspect_Ratio)
-    elif gl_context.Projection_Mode == PERSPECTIVE_MODE:
-        projection_matrix = _create_perspective_matrix(
-            fov=gl_context.FOV,
-            aspect_ratio=gl_context.Aspect_Ratio, 
-            near=gl_context.Near, 
-            far=gl_context.Far
-        )
+    if type_of_matrix == ORTHOGRAPHIC_MODE:
+        projection_matrix = _create_orthographic_matrix(aspect_ratio = aspect_ratio,
+                                                        bottom = bottom,
+                                                        top = top,
+                                                        orbital_distance = orbital_distance)
+
+    elif type_of_matrix == PERSPECTIVE_MODE:
+        projection_matrix = _create_perspective_matrix(fov = fov, 
+                                                       aspect_ratio = aspect_ratio,
+                                                       near = near,
+                                                       far = far)
     else:
         # Default to orthographic for unknown modes
-        projection_matrix = _create_orthographic_matrix(aspect_ratio=gl_context.Aspect_Ratio)
+        projection_matrix = _create_orthographic_matrix() # aspect_ratio=gl_context.Aspect_Ratio)
 
     return projection_matrix.astype(np.float32)
 
@@ -316,7 +332,6 @@ def _self_test() -> bool:
         print(f"OpenGL interface self-test failed: {e}")
         return False
 
-
 def _main() -> int:
     """
     Module entry point for testing OpenGL interface.
@@ -324,7 +339,11 @@ def _main() -> int:
     Returns:
         int: Exit code (0 for success)
     """
-    return 0
+    return_val = _self_test()
+    if  return_val == True:
+        return 0
+    else:
+        return -1
 
 if __name__ == "__main__":
     _main()

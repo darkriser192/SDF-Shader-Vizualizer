@@ -301,7 +301,6 @@ def _self_test() -> bool:
         print(f"Geometry structures self-test failed: {e}")
         return False
 
-
 def _main() -> int:
     """
     Module entry point for testing geometry structures.
@@ -310,7 +309,9 @@ def _main() -> int:
         int: Exit code (0 for success)
     """
     success = _self_test()
+
     print(f"Geometry structures self-test: {'PASSED' if success else 'FAILED'}")
+    
     return 0
 
 if __name__ == "__main__":

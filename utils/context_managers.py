@@ -42,7 +42,7 @@ class OPENGL_CONTEXT():
         Meshes (Dict[str, MESH]): Named mesh storage
         Notes (str): Development notes and context
     """
-    
+
     def __init__(self,
                  name: str = "OpenGL_Context",
                  width: int = WINDOW_WIDTH,
@@ -76,7 +76,7 @@ class OPENGL_CONTEXT():
         self.Background_Color = background_color
         self.Window: Any = window  # GLFW window handle
         self.Color_Mode: str = color_mode
-        self.FOV: np.float64 = fov
+        self.Fov: np.float64 = fov
         self.Near: np.float64 = near
         self.Far: np.float64 = far
         self.Projection_Mode: str = projection_mode
@@ -117,6 +117,7 @@ class TKINTER_CONTEXT():
             window_context (OPENGL_CONTEXT): Associated OpenGL context
             name (str): Name identifier for this context
         """
+        
         self.Dirty_Flag: bool = dirty_flag
         self.Name: str = name
         self.Related_OpenGL_Context: Optional[str] = (

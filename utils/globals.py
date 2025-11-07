@@ -26,6 +26,9 @@ import tkinter as tk # For GUI applications
 
 ### Global Variables
 
+## Types
+
+
 ## Window Parameters
 WINDOW_WIDTH = 1600 # Width of the OpenGL window
 WINDOW_HEIGHT = 1200 # Height of the OpenGL window

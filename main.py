@@ -93,7 +93,7 @@ import glfw
 from utils.globals import *
 from utils.log_setup import setup_logger
 from utils.sysinfo import get_system_info
-from utils.shaders import create_shader_program, BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER
+from utils.shaders import _create_shader_program, BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER
 from utils.geometry_structures import *
 from utils.support_function import * 
 from utils.context_managers import *
@@ -181,7 +181,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
     
     # Create a meshes
     Name = "Test_Cube"
-    _load_meshes_to_context(GL_Context, name = Name, size = 1.0 ,where = "test") 
+    _load_meshes_to_context(GL_Context, name = Name, size = 1.0 ,where = "file") 
 
     _create_mesh_buffers(GL_Context.Meshes[Name])
     
@@ -201,7 +201,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
 
     # Log vertex data upload
     if DEBUG:
-            test_mesh = GL_Context.Meshes["Test_Cube"] # TODO Need to change this if multiple meshes are used, but for now testing on the simple cube
+            test_mesh = GL_Context.Meshes[Name] # TODO Need to change this if multiple meshes are used, but for now testing on the simple cube
             LOGGER.info(f"Vertex data uploaded to GPU: {test_mesh.Vertices.shape[0]} vertices, {test_mesh.Facets.size} facets")
             LOGGER.info(f"Vertex data type: {test_mesh.Vertices.dtype}, facets data type: {test_mesh.Facets.dtype}")
             LOGGER.info(f"Vertex buffer size: {test_mesh.Vertices.nbytes} bytes, facets buffer size: {test_mesh.Facets.nbytes} bytes")
@@ -232,7 +232,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # pyright: ignore
 
         glUseProgram(shader_program)
-        glBindVertexArray(GL_Context.Meshes["Test_Cube"].VAO)
+        glBindVertexArray(GL_Context.Meshes[Name].VAO)
 
         GL_Context.Width, GL_Context.Height = glfw.get_window_size(GL_Context.Window)
         GL_Context.Aspect_Ratio = np.float64(GL_Context.Width) / np.float64(GL_Context.Height)
@@ -248,19 +248,21 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
         
         # Set mesh color uniform based on color mode
         if GL_Context.Color_Mode == "Solid":
-            if DEBUG: LOGGER.debug(f'Setting solid color uniform to: {GL_Context.Meshes["Test_Cube"]}') # TODO: Change logger to only print when the mode changes or is first set
-            glUniform4f(COLOR_LOC, *GL_Context.Meshes['Test_Cube'].Solid_Color)
+            if DEBUG: LOGGER.debug(f'Setting solid color uniform to: {GL_Context.Meshes[Name]}') # TODO: Change logger to only print when the mode changes or is first set
+            glUniform4f(COLOR_LOC, *GL_Context.Meshes[Name].Solid_Color)
         else:
             if DEBUG: LOGGER.debug(f"Color mode {GL_Context.Color_Mode} not implemented, defaulting to solid color") # TODO: Change logger to only print when the mode changes or is first set
             glUniform4f(COLOR_LOC, *test_mesh.Solid_Color)
         
+        print(f"Projection matrix diagonal: {projection_matrix.diagonal()}")
+
         glUniformMatrix4fv(PROJ_LOC,            # Location of the uniform
                            1,                   # Number of matrices to send
                            GL_FALSE,            # Transpose flag
                            projection_matrix.astype(np.float32, copy=False)) # Projection matrix data
 
         glDrawElements(GL_TRIANGLES,            # Type of geometry to draw based on the indices
-                       GL_Context.Meshes['Test_Cube'].Num_Facets,   # Number of indices to draw
+                       GL_Context.Meshes[Name].Num_Facets * 3,   # Number of indices to draw
                        GL_UNSIGNED_INT, None)   # Type of indices and offset (None means start from the beginning)
 
         glfw.swap_buffers(GL_Context.Window) # Swap front and back buffers
@@ -309,9 +311,9 @@ def _main() -> int:
 
     Main_Context = _opengl_init()
 
-    Main_Tkinter_Context = TKINTER_CONTEXT(window_context = Main_Context)
+    # Main_Tkinter_Context = TKINTER_CONTEXT(window_context = Main_Context)
 
-    Main_Context.Shader_Program = create_shader_program(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER)
+    Main_Context.Shader_Program = _create_shader_program(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER)
 
     if DEBUG: LOGGER.debug("initialization complete, entering main() loop...")
 

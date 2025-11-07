@@ -108,8 +108,19 @@ def _framebuffer_size_callback(window: Any,
     
 ## Mesh Management Functions
 
+def _read_a_file(File_types = [("All Files", "*.*")]):
+    
+    filepath = ""
+    root = tk.Tk()
+    root.withdraw()
+    filepath = filedialog.askopenfilename(title = "Select a file:", filetypes = File_types)
+    root.destroy()
+    return filepath
+                 
 def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT", 
-                            name: str, size = 0.75, 
+                            name: str, 
+                            size = 0.75,
+                            parent: str = "World_Frame", 
                             where: str = "test" ) -> None:
     """
     Load default meshes into the OpenGL context.
@@ -132,34 +143,39 @@ def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT",
         - Add mesh validation and error handling
 
     """
-    New_MESH = MESH()
 
+    
     if where == "test":
-        cube_mesh_Vertices, cube_mesh_Facets = _generate_fault_cube_geometry(Size = np.float64(0.75))
+        New_MESH = MESH()
         New_MESH.Name = name
-        New_MESH.Parent = gl_context.Transforms["World_Frame"].Name
+        New_MESH.Parent = gl_context.Transforms[parent].Name
+        gl_context.Meshes[New_MESH.Name] = New_MESH
+        cube_mesh_Vertices, cube_mesh_Facets = _generate_fault_cube_geometry(Size = np.float64(0.75))
         New_MESH.Vertices = cube_mesh_Vertices
-        New_MESH.Facets= cube_mesh_Facets
+        New_MESH.Facets = cube_mesh_Facets
+        
+    else:
+        # Get file path
+        STL_address = _read_a_file()
+        print(f"Loading STL from: {STL_address}")  # ADD THIS
+        
+        Trimesh_Object = trimesh.load_mesh(STL_address)
+        print(f"Trimesh loaded - Vertices shape: {Trimesh_Object.vertices.shape}")  # ADD THIS
+        print(f"Trimesh faces dtype: {Trimesh_Object.faces.dtype}")  # ADD THIS
+        print(f"Vertex bounds: min={Trimesh_Object.vertices.min()}, max={Trimesh_Object.vertices.max()}")  # ADD THIS
+        
+        New_MESH = MESH(name = name,
+                        parent = gl_context.Transforms[parent].Name,
+                        vertices = Trimesh_Object.vertices * 0.01,
+                        facets = Trimesh_Object.faces)
+        
         gl_context.Meshes[New_MESH.Name] = New_MESH
 
-    else:
-                # Create hidden root window
-        root = tk.Tk()
-        root.withdraw()
+
+        print(f"Mesh stored with {New_MESH.Facets.shape[0]} faces")  # ADD THIS
+    
+    return
         
-        # Get file path
-        STL_address = filedialog.askopenfilename(
-            title= "Select STL file",
-            filetypes=[("STL files", "*.stl"), ("All files", "*.*")]
-        )
-        Trimesh_geometry = trimesh.load_mesh(STL_address, file_type='stl')
-        New_MESH.Name = name
-        New_MESH.Parent = gl_context.Transforms["World_Frame"].Name
-        New_MESH.Vertices = Trimesh_geometry.vertices
-        New_MESH.Facets = Trimesh_geometry.faces.astype(np.uint32)  # Convert to uint32
-        gl_context.Meshes[New_MESH.Name] = New_MESH
-        
-        root.destroy()
 
 def _create_mesh_buffers(mesh: MESH) -> None:
     """

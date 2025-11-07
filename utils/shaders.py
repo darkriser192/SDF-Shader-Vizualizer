@@ -2,8 +2,10 @@ BASIC_VERTEX_SHADER = """
 #version 330 core
 layout (location = 0) in vec3 position;
 uniform mat4 projection;
+// uniform mat4 view;
 
 void main() {
+    // gl_Position = projection * view * vec4(position, 1.0); # Undecided if i want to compute the matrix here or before
     gl_Position = projection * vec4(position, 1.0);
 }
 """
@@ -14,14 +16,14 @@ uniform vec4 meshColor;
 out vec4 FragColor;
 
 void main() {
-    FragColor = meshColor;  // Red color
+    FragColor = meshColor; // Color rendered to screen
 }
 """
 
 from OpenGL.GL import * # pyright: ignore[reportWildcardImportFromLibrary]
 
 # shader_type can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
-def compile_single_shader(shader_type, source_code):
+def _compile_single_shader(shader_type, source_code):
     # Create shader object (returns integer handle)
     shader = glCreateShader(shader_type)
     
@@ -42,9 +44,9 @@ def compile_single_shader(shader_type, source_code):
     
     return shader  # Return compiled shader object
 
-def create_shader_program(vertex_source, fragment_source):
-    vertex_shader = compile_single_shader(GL_VERTEX_SHADER, vertex_source)
-    fragment_shader = compile_single_shader(GL_FRAGMENT_SHADER, fragment_source)
+def _create_shader_program(vertex_source, fragment_source):
+    vertex_shader = _compile_single_shader(GL_VERTEX_SHADER, vertex_source)
+    fragment_shader = _compile_single_shader(GL_FRAGMENT_SHADER, fragment_source)
 
     # Create program and attach shaders
     program = glCreateProgram()

@@ -157,22 +157,22 @@ def _load_meshes_to_context(gl_context: "OPENGL_CONTEXT",
     else:
         # Get file path
         STL_address = _read_a_file()
-        print(f"Loading STL from: {STL_address}")  # ADD THIS
+        print(f"Loading STL from: {STL_address}")  # TODO: Remove this later
         
         Trimesh_Object = trimesh.load_mesh(STL_address)
-        print(f"Trimesh loaded - Vertices shape: {Trimesh_Object.vertices.shape}")  # ADD THIS
-        print(f"Trimesh faces dtype: {Trimesh_Object.faces.dtype}")  # ADD THIS
-        print(f"Vertex bounds: min={Trimesh_Object.vertices.min()}, max={Trimesh_Object.vertices.max()}")  # ADD THIS
+        print(f"Trimesh loaded - Vertices shape: {Trimesh_Object.vertices.shape}")  # TODO: Remove this later
+        print(f"Trimesh faces dtype: {Trimesh_Object.faces.dtype}")  # TODO: Remove this later
+        print(f"Vertex bounds: min={Trimesh_Object.vertices.min()}, max={Trimesh_Object.vertices.max()}")  # TODO: Remove this later
         
         New_MESH = MESH(name = name,
                         parent = gl_context.Transforms[parent].Name,
-                        vertices = Trimesh_Object.vertices * 0.01,
+                        vertices = Trimesh_Object.vertices * 0.005, # TODO: Remove this scaling factor later
                         facets = Trimesh_Object.faces)
         
         gl_context.Meshes[New_MESH.Name] = New_MESH
 
 
-        print(f"Mesh stored with {New_MESH.Facets.shape[0]} faces")  # ADD THIS
+        print(f"Mesh stored with {New_MESH.Facets.shape[0]} faces")  # TODO: Remove this later
     
     return
         
@@ -242,7 +242,7 @@ def _create_view_matrix(type_of_matrix = DEFAULT_PROJECTION_MODE,
                         orbital_distance = CAMERA_ORBIT_RADIUS,
                         fov = FOV,
                         near = NEAR,
-                        far = FAR) -> npt.NDArray[np.float32]:
+                        far = FAR) -> npt.NDArray[np.float64]:
     """
     Create a projection matrix based on the context's current projection mode.
     
@@ -276,7 +276,7 @@ def _create_view_matrix(type_of_matrix = DEFAULT_PROJECTION_MODE,
         # Default to orthographic for unknown modes
         projection_matrix = _create_orthographic_matrix() # aspect_ratio=gl_context.Aspect_Ratio)
 
-    return projection_matrix.astype(np.float32)
+    return projection_matrix.astype(np.float64)
 
 ## Shader Uniform Management Functions
 

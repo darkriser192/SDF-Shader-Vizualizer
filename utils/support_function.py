@@ -155,6 +155,35 @@ def _generate_tetrahedron_geometry(Size = np.float64(1.0)):
         dtype = np.uint32)
     return Vertices, Facets
 
+def _affine_to_mat(Affine_Transform: AFFINE_TRANSFORM): # Returns a 4x4 Matrix from an AFFINE_TRANSFORM object
+    """
+    Takes an AFFINE_TRASNFORM() and returns a 4x4 np.array object
+    """
+    return np.array([Affine_Transform.Rotation[0],Affine_Transform.Rotation[1],Affine_Transform.Rotation[2],Affine_Transform.Translation[0],
+                     Affine_Transform.Rotation[3],Affine_Transform.Rotation[4],Affine_Transform.Rotation[5],Affine_Transform.Translation[1],
+                     Affine_Transform.Rotation[6],Affine_Transform.Rotation[7],Affine_Transform.Rotation[8],Affine_Transform.Translation[2],
+                                                0,                           0,                           0,Affine_Transform.Homogeneous]).reshape((4,4))
+
+def _3D_to_1D(x_dim: int, y_dim: int, z_dim: int, 
+              x_pos: int, y_pos: int, z_pos: int) -> int:
+    """
+    Takes a 3D position (integers) and returns a 1D index position of the flattened array
+    Args:
+        x_dim (int) : size of array in X
+        y_dim (int) : size of array in y
+        z_dim (int) : size of array in z
+        x_pos (int) : position in array in X
+        y_pos (int) : position in array in y
+        z_pos (int) : position in array in z
+
+    Return
+        1D index position
+    
+    """
+
+    return 0
+
+
 ## Self-Test and Module Entry Point
 def _main() -> int:
     return 0

@@ -181,7 +181,7 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
     
     # Create a meshes
     Name = "Test_Cube"
-    _load_meshes_to_context(GL_Context, name = Name, size = 1.0 ,where = "file") 
+    _load_meshes_to_context(GL_Context, name = Name, size = 1.0 ,where = "test") 
 
     _create_mesh_buffers(GL_Context.Meshes[Name])
     
@@ -254,12 +254,10 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
             if DEBUG: LOGGER.debug(f"Color mode {GL_Context.Color_Mode} not implemented, defaulting to solid color") # TODO: Change logger to only print when the mode changes or is first set
             glUniform4f(COLOR_LOC, *test_mesh.Solid_Color)
         
-        print(f"Projection matrix diagonal: {projection_matrix.diagonal()}")
-
         glUniformMatrix4fv(PROJ_LOC,            # Location of the uniform
                            1,                   # Number of matrices to send
                            GL_FALSE,            # Transpose flag
-                           projection_matrix.astype(np.float32, copy=False)) # Projection matrix data
+                           projection_matrix.astype(np.float64, copy=False)) # Projection matrix data
 
         glDrawElements(GL_TRIANGLES,            # Type of geometry to draw based on the indices
                        GL_Context.Meshes[Name].Num_Facets * 3,   # Number of indices to draw

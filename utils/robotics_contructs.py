@@ -22,6 +22,7 @@ __all__ =[]
 
 
 ## Support Functions
+## General Utilities
 
 def translateXYZ(x_coord: float = 0.0, 
                  y_coord: float = 0.0, 
@@ -246,6 +247,23 @@ def check_transform_type(affine_transform: AFFINE_TRANSFORM) -> str:
         return "Improper rotation (with reflection)"
     else:
         return f"Scaled transformation (det = {det_value})"
+
+## D-H Utilities
+
+def _dh2mat(dh_parameters):
+    """
+    takes a matrix of dannevit hartenberg parametrs representing a robot and returns a lsit of matrixes representing the stack of trasnfomration for the robot
+    first one is the final robot trasnform and second is a dictionary for joint_i_i+1
+    """
+
+    return AFFINE_TRANSFORM(), dict # Placeholder for the returns
+
+
+## Screw Vector Utilities
+
+
+
+
 
 
 ## Self-Test and Module Entry Point

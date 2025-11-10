@@ -2,10 +2,11 @@ BASIC_VERTEX_SHADER = """
 #version 330 core
 layout (location = 0) in vec3 position;
 uniform mat4 projection;
-// uniform mat4 view;
+uniform mat4 view
+uniform float64 homogeneous
 
 void main() {
-    // gl_Position = projection * view * vec4(position, 1.0); # Undecided if i want to compute the matrix here or before
+    // gl_Position = projection * view * vec4(position, homogeneous); # Undecided if i want to compute the matrix here or before
     gl_Position = projection * vec4(position, 1.0);
 }
 """

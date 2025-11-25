@@ -250,13 +250,47 @@ def check_transform_type(affine_transform: AFFINE_TRANSFORM) -> str:
 
 ## D-H Utilities
 
-def _dh2mat(dh_parameters):
+def dh_chain_to_affine(dh_params: np.ndarray) -> tuple[AFFINE_TRANSFORM, list]:
     """
-    takes a matrix of dannevit hartenberg parametrs representing a robot and returns a lsit of matrixes representing the stack of trasnfomration for the robot
-    first one is the final robot trasnform and second is a dictionary for joint_i_i+1
-    """
+    Compute the final transformation matrix from a sequence of DH parameters.
 
-    return AFFINE_TRANSFORM(), dict # Placeholder for the returns
+    Parameters:
+        dh_params (np.ndarray): Nx4 array, each row is [theta, d, a, alpha] for a joint (in radians/meters).
+
+    Returns:
+        final_transform (AFFINE_TRANSFORM): The resulting transform from base to end-effector.
+        transforms_list (list): List of AFFINE_TRANSFORM for each joint (cumulative).
+    """
+    N = dh_params.shape[0]
+    transforms_list = []
+    T = np.eye(4)
+
+    for i in range(N):
+        theta, d, a, alpha = dh_params[i]
+        # DH transformation for one joint
+        ct, st = np.cos(theta), np.sin(theta)
+        ca, sa = np.cos(alpha), np.sin(alpha)
+        T_i = np.array([
+            [ct, -st*ca,  st*sa, a*ct],
+            [st,  ct*ca, -ct*sa, a*st],
+            [0,      sa,     ca,    d],
+            [0,       0,      0,    1]
+        ], dtype=np.float64)
+        T = T @ T_i
+        # Store as AFFINE_TRANSFORM
+        aff = AFFINE_TRANSFORM()
+        aff.Rotation = T[:3, :3]
+        aff.Translation = T[:3, 3]
+        aff.Name = f"Joint_{i+1}"
+        transforms_list.append(aff)
+
+    # Final transform
+    final_affine = AFFINE_TRANSFORM()
+    final_affine.Rotation = T[:3, :3]
+    final_affine.Translation = T[:3, 3]
+    final_affine.Name = "EndEffector"
+
+    return final_affine, transforms_list
 
 
 ## Screw Vector Utilities

@@ -103,7 +103,7 @@ from utils.robotics_contructs import *
 
 ## Debug Setup
 LOGGER = setup_logger(Name = "SDF_Render_Logger") # Initialize logger
-DEBUG = False # This is the flag to control the trigger of the logger # TODO: Needs to increase functionality to utilize the noraml logger escalation functions
+DEBUG = True # This is the flag to control the trigger of the logger # TODO: Needs to increase functionality to utilize the noraml logger escalation functions
 # LOGGER_VERBOSITY = FULL # TODO: There is an actual better way to do this I dont remmeber the call at this moment
 if DEBUG:
     LOGGER.info("Debug mode is ON")
@@ -118,7 +118,7 @@ if DEBUG:
 
     # export_system_info(full_info = SYSINFO, filepath = "contexts", filename = "system_info.json")
     
-if DEBUG: LOGGER.debug(f"This is a debug message from main.py")
+if DEBUG: LOGGER.info(f"This is a debug message from main.py")
 
 ## Data Structures
 # Needed data structures that do not relate to the greater architecture or I do not believe I will reuse
@@ -224,7 +224,6 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
         """
         # Process Inputs
         _get_input_events(GL_Context)
-
         _process_input_events(GL_Context)
 
         # Render
@@ -248,10 +247,8 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
         
         # Set mesh color uniform based on color mode
         if GL_Context.Color_Mode == "Solid":
-            if DEBUG: LOGGER.debug(f'Setting solid color uniform to: {GL_Context.Meshes[Name]}') # TODO: Change logger to only print when the mode changes or is first set
             glUniform4f(COLOR_LOC, *GL_Context.Meshes[Name].Solid_Color)
         else:
-            if DEBUG: LOGGER.debug(f"Color mode {GL_Context.Color_Mode} not implemented, defaulting to solid color") # TODO: Change logger to only print when the mode changes or is first set
             glUniform4f(COLOR_LOC, *test_mesh.Solid_Color)
         
         glUniformMatrix4fv(PROJ_LOC,            # Location of the uniform
@@ -273,8 +270,9 @@ def _workloop(GL_Context: OPENGL_CONTEXT) -> int:
         # Update counter and log debug information
         WORKLOOP_COUNTER += 1
         if DEBUG and WORKLOOP_COUNTER % 500 == 0:
-            print(f"Counter: {WORKLOOP_COUNTER}, Window Size: {GL_Context.Width}x{GL_Context.Height}, Aspect Ratio: {GL_Context.Aspect_Ratio:.2f}") # TODO: Change to only print when window size changes
-            print("In workloop")
+            # TODO: Change to only print when window size changes
+            LOGGER.debug(f"Counter: {WORKLOOP_COUNTER}, Window Size: {GL_Context.Width}x{GL_Context.Height}, Aspect Ratio: {GL_Context.Aspect_Ratio:.2f}")
+            LOGGER.info("In workloop")
                 
         if WORKLOOP_COUNTER == 2000:
             WORKLOOP_COUNTER = 0

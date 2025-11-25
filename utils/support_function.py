@@ -183,6 +183,13 @@ def _3D_to_1D(x_dim: int, y_dim: int, z_dim: int,
 
     return 0
 
+def _1D_to_3D(x_dim: int, y_dim: int, z_dim: int,
+              N: int) -> int:
+    """
+    The reverse of '_3D_to_1D'
+    # TODO: Implement
+    """
+    return int() # 
 
 ## Self-Test and Module Entry Point
 def _main() -> int:
@@ -190,3 +197,4 @@ def _main() -> int:
 
 if __name__ == "__main__":
     _main()
+    
